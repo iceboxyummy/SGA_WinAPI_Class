@@ -152,6 +152,14 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //  WM_PAINT    - 주 창을 그립니다.
 //  WM_DESTROY  - 종료 메시지를 게시하고 반환합니다.
 
+/*
+    Proc : 메시지 처리함수
+     - window api는 메시지기반 프로그래밍이다.
+     - 메시지를 다룰 때 거대한 메시지 큐를 사용한다. (생성되는 메시지를 차례대로 처리해준다.) ex) 입력, 창 변경
+       -> 마지막에 들어온 메시지는 앞에 메시지가 처리될 때까지 동작을 할 수없어 딜에이가 있을 수 있다.
+     - api는 기본적인 창띄우기, 마우스 처리 용도 정도로만 사용한다.
+*/
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
@@ -173,11 +181,62 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
         }
         break;
+
     case WM_PAINT:
         {
             PAINTSTRUCT ps;
+            
+            // dc(device context) : 출력을 위한 모든 데이터를 가지는 구조체
             HDC hdc = BeginPaint(hWnd, &ps);
-            // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
+            // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다.
+
+            // 문자열 출력
+            /*
+            wstring wstr = L"안녕 윈도우!!!";
+
+            TextOut(hdc, 10, 10, wstr.c_str(), wstr.length());
+            */
+
+            // 선 그리기
+
+            // 선의 시작점 지정
+            //MoveToEx(hdc, 50, 50, NULL);
+
+            // 현재 시작점에서 선그리기
+            //LineTo(hdc, 100, 50);
+            //LineTo(hdc, 100, 70);
+
+            // 사각형그리기
+            //Rectangle(hdc, 150, 150, 200, 200);
+
+            // 원그리기
+            //Ellipse(hdc, 400, 400, 500, 500);
+
+			// 격자무늬 만들기
+            /*
+			for (int x = 0; x < WINSIZE_X; x += 50)
+			{
+				MoveToEx(hdc, x, 0, NULL);
+				LineTo(hdc, x, WINSIZE_Y);
+			}
+
+			for (int y = 0; y < WINSIZE_Y; y += 50)
+            {
+                MoveToEx(hdc, 0, y, NULL);
+                LineTo(hdc, WINSIZE_X, y);
+            }
+            */
+
+			// 반목문 하나만 사용해서 도형 번갈아 출력하기
+            for (int i = 0; i < 25; i++)
+            {
+                if ((i / 5) % 2 == 0)
+                    Rectangle(hdc, 100 + (i % 5) * 100, 100 + (i / 5) * 100, 150 + (i % 5) * 100, 150 + (i / 5) * 100);
+
+                else if ((i / 5) % 2 == 1)
+                    Ellipse(hdc, 100 + (i % 5) * 100, 100 + (i / 5) * 100, 150 + (i % 5) * 100, 150 + (i / 5) * 100);
+            }
+
             EndPaint(hWnd, &ps);
         }
         break;

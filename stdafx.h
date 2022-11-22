@@ -19,3 +19,6 @@
 #define PROGRAM_TITLE L"윈도우API 게임"
 // " " : 일반 문자열
 // L" " : 한글과 같은 멀티바이트 문자를 표시할 때 시용하는 문자열
+
+#include <string>
+using namespace std;
