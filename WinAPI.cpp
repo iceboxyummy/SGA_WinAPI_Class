@@ -29,6 +29,9 @@ HWND g_hWnd;
 
 POINT ptPos = { 0,0 };
 
+stack<POINT> Undo;
+stack<POINT> Redo;
+
 /*
 	Handle : 운영체제 내부에 있는 리소스(자원)의 주소를 정수로 치환한 값
 	 - 핸들 테이블에서 핸들과 리소스의 주소가 관리된다.
@@ -228,35 +231,77 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 		case'A': case VK_LEFT:
 		{
-			if (ptPos.x > 0) ptPos.x--;
+			if (ptPos.x > 0)
+			{
+				while (Redo.empty() != true)
+					Redo.pop();
+
+				Undo.push(ptPos);
+				ptPos.x--;
+			}
 			break;
 		}
 
 		case'D': case VK_RIGHT:
 		{
-			if (ptPos.x < 15) ptPos.x++;
+			if (ptPos.x < 15) 
+			{
+				while (Redo.empty() != true)
+					Redo.pop();
+
+				Undo.push(ptPos);
+				ptPos.x++;
+			}
 			break;
 		}
 
 		case'W': case VK_UP:
 		{
-			if (ptPos.y > 0) ptPos.y--;
+			if (ptPos.y > 0) 
+			{
+				while (Redo.empty() != true)
+					Redo.pop();
+
+				Undo.push(ptPos);
+				ptPos.y--;
+			}
 			break;
 		}
 
 		case'S': case VK_DOWN:
 		{
-			if (ptPos.y < 8) ptPos.y++;
+			if (ptPos.y < 8) 
+			{
+				while (Redo.empty() != true)
+					Redo.pop();
+
+				Undo.push(ptPos);
+				ptPos.y++;
+			}
 			break;
 		}
 
 		case'Z':
 		{
+			if (Undo.empty() != true)
+			{
+				Redo.push(ptPos);
+
+				ptPos = Undo.top();
+				Undo.pop();
+			}
 			break;
 		}
 
-		case'x':
+		case'X':
 		{
+			if (Redo.empty() != true)
+			{
+				Undo.push(ptPos);
+
+				ptPos = Redo.top();
+				Redo.pop();
+			}
 			break;
 		} 
 		default:

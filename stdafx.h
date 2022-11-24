@@ -13,7 +13,7 @@
 #include <memory.h>
 #include <tchar.h>
 
-#define WINSIZE_X 1280
+#define WINSIZE_X 640
 #define WINSIZE_Y 720
 
 #define PROGRAM_TITLE L"윈도우API 게임"
@@ -21,4 +21,8 @@
 // L" " : 한글과 같은 멀티바이트 문자를 표시할 때 시용하는 문자열
 
 #include <string>
+#include <stack>
+#include <time.h>
+#include <vector>
+
 using namespace std;
