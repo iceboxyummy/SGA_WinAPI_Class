@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "MainGame.h"
 
 MainGame::MainGame()
@@ -11,7 +12,7 @@ MainGame::~MainGame()
 void MainGame::Init()
 {
 	ptPos1 = { WINSIZE_X / 2, WINSIZE_Y - 30 };
-	vector<tagBox> vecBox;
+	vector<tagBox> vecBox; 
 
 	fMoveSpeed = 20;
 
@@ -120,8 +121,8 @@ void MainGame::Render()
 		wstring wScore(to_wstring(nScore).c_str());
 		TextOut(hdc, 10, 10, wScore.c_str(), wScore.length());
 
-		wstring nLevel(to_wstring(nLevel).c_str());
-		TextOut(hdc, 10, 310, nLevel.c_str(), nLevel.length());
+		wstring wLevel(to_wstring(nLevel).c_str());
+		TextOut(hdc, 10, 30, wLevel.c_str(), wLevel.length());
 
 		EndPaint(g_hWnd, &ps);
 }
