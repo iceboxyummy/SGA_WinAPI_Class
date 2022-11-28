@@ -16,7 +16,11 @@
 #define WINSIZE_X 640
 #define WINSIZE_Y 720
 
+
 #define PROGRAM_TITLE L"윈도우API 게임"
+#define RECT_MAKE(x,y,s) {x-s/2, y-s/2,x+s/2, y+s/2}
+#define RECT_DRAW(rt) Rectangle(hdc, rt.left, rt.top, rt.right,rt.bottom)
+
 // " " : 일반 문자열
 // L" " : 한글과 같은 멀티바이트 문자를 표시할 때 시용하는 문자열
 
@@ -26,3 +30,8 @@
 #include <vector>
 
 using namespace std;
+
+extern HWND g_hWnd;
+extern POINT g_ptMouse;
+
+#include "MainGame.h"

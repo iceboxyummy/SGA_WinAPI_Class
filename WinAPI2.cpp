@@ -26,22 +26,9 @@ LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
 HWND g_hWnd;
+POINT g_ptMouse;
 
-// enum MOVE_DIR { MOVE_LEFT, MOVE_RIGHT, MOVE_UP, MOVE_DOWN };
-
-POINT ptPos1 = { WINSIZE_X / 2, WINSIZE_Y - 30 };
-RECT rtBox1;
-// MOVE_DIR eMoveDir;
-float fMoveSpeed = 20;
-
-vector<RECT> vecRect;
-int nDelay = 50;
-
-#define RECT_MAKE(x,y,s) {x-s/2, y-s/2,x+s/2, y+s/2}
-#define RECT_DRAW(rt) Rectangle(hdc, rt.left, rt.top, rt.right,rt.bottom)
-
-POINT ptMouse;
-bool isPicked = false;
+MainGame* pMainGame = nullptr;
 
 /*
 	Handle : 운영체제 내부에 있는 리소스(자원)의 주소를 정수로 치환한 값
@@ -78,6 +65,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,         // 프로그램 핸들 인스턴�
 
 	MSG msg;
 
+	pMainGame = new MainGame;
+	pMainGame->Init();
+
 	// 기본 메시지 루프입니다.
 	while (GetMessage(&msg, nullptr, 0, 0)) // GetMessage : 메시지 큐에서 메시지를 읽는다.
 	{
@@ -87,6 +77,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,         // 프로그램 핸들 인스턴�
 			DispatchMessage(&msg);
 		}
 	}
+
+	delete pMainGame;
 
 	return (int)msg.wParam;
 }
@@ -151,12 +143,15 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		nullptr,              // 부모 윈도우
 		nullptr,              // 메뉴 핸들
 		hInstance,            // 인스턴스 지정
-		nullptr);             // 자식 윈도우를 생성하면 지정 없다면 NULL
+		nullptr               // 자식 윈도우를 생성하면 지정 없다면 NULL
+	);
 
 	if (!hWnd)
 	{
 		return FALSE;
 	}
+
+	g_hWnd = hWnd;
 
 	// 윈도우 사이즈 조정(타이틀 바 및 메뉴를 실사이즈에서 제외)
 	{
@@ -233,126 +228,29 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	case WM_TIMER: // 타이머가 실행돌 때 호출되는 메시지
 	{
-		// InvalidateRect : 화면을 갱신해주는 함수 ( true : 해당 영역을 지우고 다시 그린다. false : 해당 영역을 지우지 않고 덮어씌운다.)
-		InvalidateRect(hWnd, NULL, true); // NULL일 경우 모든 영역을 갱신한다.
-
-		rtBox1 = RECT_MAKE(ptPos1.x, ptPos1.y, 50);
-
-		// 상자생성
-		if (nDelay >= 50)
-		{
-			RECT rt;
-
-			rt.left = rand() % WINSIZE_X;
-			rt.right = rt.left + 30;
-			rt.top = -30;
-			rt.bottom = 0;
-
-			vecRect.push_back(rt);
-
-			nDelay = 0;
-		}
-
-		else nDelay++;
-
-		// 상자 하강
-		RECT rt;
-
-		for (auto iter = vecRect.begin(); iter != vecRect.end();)
-		{
-			iter->top += 10;
-			iter->bottom += 10;
-
-			RECT rtiter = *iter;
-
-			if (iter->top > WINSIZE_Y)
-			{
-				iter = vecRect.erase(iter);
-			}
-			else if (IntersectRect(&rt, &rtiter, &rtBox1))
-			{
-				iter = vecRect.erase(iter);
-			}
-			else iter++;
-		}
+		if(pMainGame != nullptr)
+			pMainGame->Update();
 		break;
 	}
-
-	case WM_KEYDOWN: // 키를 눌렀을 때 발생하는 메시지
-	{
-		switch (wParam) // 키입력시 해당 값을 wParam에서 받아준다.
-		{
-		case'A': case VK_LEFT:
-		{
-			if (rtBox1.left - fMoveSpeed >= 0) ptPos1.x -= fMoveSpeed;
-			// eMoveDir = MOVE_LEFT;
-			break;
-		}
-
-		case'D': case VK_RIGHT:
-		{
-			if (rtBox1.right + fMoveSpeed <= WINSIZE_X) ptPos1.x += fMoveSpeed;;
-			// eMoveDir = MOVE_RIGHT;
-		}
-
-		/*case'W': case VK_UP:
-		{
-			if (rtBox1.top - fMoveSpeed >= 0) ptPos1.y -= fMoveSpeed;
-			eMoveDir = MOVE_UP;
-			break;
-		}
-
-		case'S': case VK_DOWN:
-		{
-			if (rtBox1.bottom + fMoveSpeed <= WINSIZE_Y) ptPos1.y += fMoveSpeed;
-			eMoveDir = MOVE_DOWN;
-			break;
-		}*/
-
-		default:
-			break;
-		}
-	}
-	break;
 
 	case WM_MOUSEMOVE: // 마우스가 이동할 때 발생하는 메시지
 	{
 		// lParam : WM_MOUSEMOVE에서 마우스 좌표값이 담김
 		// LOWORD(), HIWORD()는 비트연산으로 각각의 위치에 있는 비트값을 받아온다.
 
-		ptMouse.x = LOWORD(lParam); // 낮은 비트에 x 좌표값이 존재
-		ptMouse.y = LOWORD(lParam); // 높은 비트에 y 좌표값이 존재
+		g_ptMouse.x = LOWORD(lParam); // 낮은 비트에 x 좌표값이 존재
+		g_ptMouse.y = LOWORD(lParam); // 높은 비트에 y 좌표값이 존재
 
 		break;
-	}
-
-	case WM_LBUTTONDOWN: // 마우스 왼클릭시 발생하는 메시지
-	{	
-		break;
-	}
-
-	case WM_LBUTTONUP: // 마우스 왼클릭후 떼었을때 발생하는 메시지
-	{
-		isPicked = false;
 	}
 
 	case WM_PAINT:
 	{
-		PAINTSTRUCT ps;
-
-		// dc(device context) : 출력을 위한 모든 데이터를 가지는 구조체
-		HDC hdc = BeginPaint(hWnd, &ps);
-		// TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다.
-
-		RECT_DRAW(rtBox1);
-
-		for (const auto& rect : vecRect)
-			RECT_DRAW(rect);
-
-		EndPaint(hWnd, &ps);
+		if (pMainGame != nullptr)
+			pMainGame->Render();
+		break;
 	}
-	break;
-
+	
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
