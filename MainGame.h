@@ -1,16 +1,8 @@
 #pragma once
-
 #include "GameNode.h"
 
-class MainGame : public GameNode
+class MainGame final : public GameNode
 {
-private:
-	struct tagBox
-	{
-		RECT rt;
-		float speed;
-	};
-
 public:
 	MainGame();
 	~MainGame();
@@ -20,13 +12,9 @@ public:
 	virtual void Render() override;
 
 private:
-	POINT ptPos1;
-	RECT rtBox1;
-	float fMoveSpeed;
-
 	int nScore;
 	int nLevel;
 
-	vector<tagBox> vecBox;
-	int nDelay;
+	class Player* pPlayer;
+	class Object* pObject;
 };

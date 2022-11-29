@@ -27,6 +27,7 @@ INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
 HWND g_hWnd;
 POINT g_ptMouse;
+HDC g_hDC;
 
 MainGame* pMainGame = nullptr;
 
