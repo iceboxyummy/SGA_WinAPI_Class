@@ -37,7 +37,7 @@ void MainGame::Init()
 void MainGame::Update()
 {
 	// InvalidateRect : 화면을 갱신해주는 함수 ( true : 해당 영역을 지우고 다시 그린다. false : 해당 영역을 지우지 않고 덮어씌운다.)
-	InvalidateRect(g_hWnd, NULL, true); // NULL일 경우 모든 영역을 갱신한다.
+	InvalidateRect(g_hWnd, NULL, false); // NULL일 경우 모든 영역을 갱신한다.
 
 	nLevel = nScore / 100 + 1;
 
@@ -82,10 +82,14 @@ void MainGame::Render()
 		PAINTSTRUCT ps;
 
 		// dc(device context) : 출력을 위한 모든 데이터를 가지는 구조체
-		g_hDC = BeginPaint(g_hWnd, &ps);
+		 HDC hdc = BeginPaint(g_hWnd, &ps);
 
 		// TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다.
 
+		// 백버퍼를 흰색으로 초기화
+		PatBlt(g_hDC, 0, 0, WINSIZE_X, WINSIZE_Y, WHITENESS);
+
+		// 백버퍼에 그림을 그려준다.
 		if (pPlayer != nullptr)pPlayer->Render();
 		if (pObject != nullptr)pObject->Render();
 
@@ -94,6 +98,9 @@ void MainGame::Render()
 
 		wstring wLevel(to_wstring(nLevel).c_str());
 		TextOut(g_hDC, 10, 30, wLevel.c_str(), wLevel.length());
+
+		// 백버퍼에서 그린 이미지를 전면버퍼에 복사해준다.
+		BitBlt(hdc, 0, 0, WINSIZE_X, WINSIZE_Y, g_hDC, 0, 0, SRCCOPY);
 
 		EndPaint(g_hWnd, &ps);
 }

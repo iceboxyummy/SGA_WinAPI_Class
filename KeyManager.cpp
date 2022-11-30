@@ -35,5 +35,6 @@ void KeyManager::update()
 				key_state[key] = Release;
 				break;
 			}
+		}
 	}
 }

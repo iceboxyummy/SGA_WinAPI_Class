@@ -68,14 +68,43 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,         // 프로그램 핸들 인스턴�
 
 	pMainGame = new MainGame;
 	pMainGame->Init();
+	KeyManager::Get().Init();
+
+	HDC hdc = GetDC(g_hWnd);
+	// 메인 DC를 사용하여 추가로 DC를 생성한다.
+	g_hDC = CreateCompatibleDC(hdc);
+	// 백버퍼로 사용할 비트맵을 생성한다.
+	// 비트맵 : 픽셀 이미지를 저장하는 이진파일 또는 저장 방식
+	HBITMAP hBitmap = (HBITMAP)CreateCompatibleBitmap(hdc, WINSIZE_X, WINSIZE_Y);
+	// 백버퍼 DC에 비트맵 연결
+	SelectObject(g_hDC, hBitmap);
 
 	// 기본 메시지 루프입니다.
-	while (GetMessage(&msg, nullptr, 0, 0)) // GetMessage : 메시지 큐에서 메시지를 읽는다.
+	//while (GetMessage(&msg, nullptr, 0, 0)) // GetMessage : 메시지 큐에서 메시지를 읽는다.
+	//{
+	//	if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+	//	{
+	//		TranslateMessage(&msg);
+	//		DispatchMessage(&msg);
+	//	}
+	//}
+
+	while(true)
 	{
-		if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+		if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
 		{
+			if (msg.message == WM_QUIT) break;
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
+		}
+
+		else
+		{
+			if (pMainGame != nullptr)
+			{
+				pMainGame->Update();
+				pMainGame->Render();
+			}
 		}
 	}
 
@@ -221,18 +250,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 		// 타이머 : 일정주기마다 메시지 호출을 위해사용한다.
 		// 호출할 함수를 NULL로 설정할 경우 VM_TIMER 메시지를 발생시킨다.
-		SetTimer(hWnd, 1, 10, NULL); // 핸들, 타이머 넘버, 호출 주기 1 == 1/1000초
+		// SetTimer(hWnd, 1, 10, NULL); // 핸들, 타이머 넘버, 호출 주기 1 == 1/1000초
 
 		srand(time(NULL));
 		break;
 	}
 
-	case WM_TIMER: // 타이머가 실행돌 때 호출되는 메시지
-	{
-		if(pMainGame != nullptr)
-			pMainGame->Update();
-		break;
-	}
+	//case WM_TIMER: // 타이머가 실행돌 때 호출되는 메시지
+	//{
+	//	KeyManager::Get().update();
+	//	if(pMainGame != nullptr)
+	//		pMainGame->Update();
+	//	break;
+	//}
 
 	case WM_MOUSEMOVE: // 마우스가 이동할 때 발생하는 메시지
 	{
@@ -245,12 +275,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	}
 
-	case WM_PAINT:
+	/*case WM_PAINT:
 	{
 		if (pMainGame != nullptr)
 			pMainGame->Render();
 		break;
-	}
+	}*/
 	
 	case WM_DESTROY:
 		PostQuitMessage(0);

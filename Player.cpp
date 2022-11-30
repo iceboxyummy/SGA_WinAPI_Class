@@ -17,7 +17,7 @@ void Player::Init()
 }
 
 void Player::Update()
-{/*
+{	/*
 		GetAsyncKeyState() : 호출된 시점의 키 입력 상태를 확인하는 함수
 		
 		옵션
@@ -30,12 +30,14 @@ void Player::Update()
 		0x8001 : 이전에 누른적이 있고 호출시점에도 눌려있음
 	*/
 
-	if (GetAsyncKeyState(VK_LEFT) & 0x8000)
+	if (KeyManager::Get().IsDown(VK_LEFT)
+		||KeyManager::Get().IsState(VK_LEFT))
 	{
 		if (rtBox1.left - fMoveSpeed >= 0) ptPos1.x -= fMoveSpeed;
 	}
 
-	if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
+	if (KeyManager::Get().IsDown(VK_RIGHT)
+		|| KeyManager::Get().IsState(VK_RIGHT))
 	{
 		if (rtBox1.right + fMoveSpeed <= WINSIZE_X) ptPos1.x += fMoveSpeed;
 	}
